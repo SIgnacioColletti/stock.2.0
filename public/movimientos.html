@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movimientos - Stock Kiosco</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        .tipo-entrada {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .tipo-salida {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .tipo-ajuste {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .filter-bar {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            color: var(--gray);
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            color: var(--primary);
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>🏪 Stock Kiosco</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/dashboard.html" class="nav-item">
+                    📊 Dashboard
+                </a>
+                <a href="/producto.html" class="nav-item">
+                    📦 Productos
+                </a>
+                <a href="/categorias.html" class="nav-item">
+                    🏷️ Categorías
+                </a>
+                <a href="/proveedores.html" class="nav-item">
+                    🚚 Proveedores
+                </a>
+                <a href="/lista-compras.html" class="nav-item">
+                    🛒 Lista de Compras
+                </a>
+                <a href="/movimientos.html" class="nav-item">
+                    📋 Movimientos
+                </a>
+                <a href="#" class="nav-item" onclick="logout()">
+                    🚪 Cerrar Sesión
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <p id="userEmail"></p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="page-header">
+                <div>
+                    <h1>Gestión de Movimientos</h1>
+                    <p class="subtitle">Historial completo de entradas, salidas y ajustes</p>
+                </div>
+                <button class="btn btn-primary" onclick="showNuevoMovimientoModal()">
+                    ➕ Nuevo Movimiento
+                </button>
+            </header>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab active" onclick="cambiarTab('todos')" id="tabTodos">
+                    📋 Todos
+                </button>
+                <button class="tab" onclick="cambiarTab('entrada')" id="tabEntrada">
+                    📥 Entradas
+                </button>
+                <button class="tab" onclick="cambiarTab('salida')" id="tabSalida">
+                    📤 Salidas
+                </button>
+                <button class="tab" onclick="cambiarTab('ajuste')" id="tabAjuste">
+                    🔧 Ajustes
+                </button>
+            </div>
+
+            <!-- Filtros -->
+            <div class="filter-bar">
+                <div class="filter-group">
+                    <label for="searchProducto">Buscar Producto</label>
+                    <input type="text" id="searchProducto" placeholder="Nombre o código..." class="search-input">
+                </div>
+
+                <div class="filter-group">
+                    <label for="fechaDesde">Desde</label>
+                    <input type="date" id="fechaDesde">
+                </div>
+
+                <div class="filter-group">
+                    <label for="fechaHasta">Hasta</label>
+                    <input type="date" id="fechaHasta">
+                </div>
+
+                <div class="filter-group">
+                    <label>&nbsp;</label>
+                    <button class="btn btn-secondary" onclick="limpiarFiltros()">
+                        🔄 Limpiar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading -->
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Cargando movimientos...</p>
+            </div>
+
+            <!-- Contenido -->
+            <div id="movimientosContent" style="display: none;">
+                <!-- Stats Cards -->
+                <div class="stats-grid" style="margin-bottom: 30px;">
+                    <div class="stat-card">
+                        <div class="stat-icon">📋</div>
+                        <div class="stat-content">
+                            <h3 id="totalMovimientos">0</h3>
+                            <p>Total Movimientos</p>
+                        </div>
+                    </div>
+                    <div class="stat-card" style="border-left: 4px solid #10b981;">
+                        <div class="stat-icon">📥</div>
+                        <div class="stat-content">
+                            <h3 id="totalEntradas">0</h3>
+                            <p>Entradas</p>
+                        </div>
+                    </div>
+                    <div class="stat-card" style="border-left: 4px solid #ef4444;">
+                        <div class="stat-icon">📤</div>
+                        <div class="stat-content">
+                            <h3 id="totalSalidas">0</h3>
+                            <p>Salidas</p>
+                        </div>
+                    </div>
+                    <div class="stat-card" style="border-left: 4px solid #3b82f6;">
+                        <div class="stat-icon">🔧</div>
+                        <div class="stat-content">
+                            <h3 id="totalAjustes">0</h3>
+                            <p>Ajustes</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabla de Movimientos -->
+                <div class="table-section">
+                    <h2>Historial de Movimientos</h2>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Producto</th>
+                                    <th>Tipo</th>
+                                    <th>Motivo</th>
+                                    <th>Cantidad</th>
+                                    <th>Stock Anterior</th>
+                                    <th>Stock Posterior</th>
+                                    <th>Usuario</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="movimientosTableBody">
+                                <tr>
+                                    <td colspan="9" class="text-center">Cargando...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Nuevo Movimiento -->
+            <div id="movimientoModal" class="modal">
+                <div class="modal-content" style="max-width: 600px;">
+                    <span class="close" onclick="closeMovimientoModal()">&times;</span>
+                    <h2>Nuevo Movimiento</h2>
+
+                    <form id="movimientoForm">
+                        <div class="form-group">
+                            <label for="tipoMovimiento">Tipo de Movimiento *</label>
+                            <select id="tipoMovimiento" required onchange="actualizarFormulario()">
+                                <option value="">Seleccione un tipo</option>
+                                <option value="entrada">📥 Entrada (Compra/Ingreso)</option>
+                                <option value="salida">📤 Salida (Venta)</option>
+                                <option value="ajuste">🔧 Ajuste de Inventario</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="productoId">Producto *</label>
+                            <select id="productoId" required onchange="actualizarStockDisponible()">
+                                <option value="">Seleccione un producto</option>
+                            </select>
+                            <small class="form-hint" id="stockDisponibleHint"></small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="cantidad">Cantidad *</label>
+                            <input type="number" id="cantidad" placeholder="0" min="1" required>
+                        </div>
+
+                        <div class="form-group" id="motivoGroup">
+                            <label for="motivo">Motivo</label>
+                            <select id="motivo">
+                                <option value="">Seleccione un motivo</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="observaciones">Observaciones</label>
+                            <textarea id="observaciones" rows="3" placeholder="Detalles adicionales del movimiento..."
+                                maxlength="500"></textarea>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" onclick="closeMovimientoModal()">
+                                Cancelar
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                💾 Registrar Movimiento
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Modal Detalle Movimiento -->
+            <div id="detalleModal" class="modal">
+                <div class="modal-content" style="max-width: 600px;">
+                    <span class="close" onclick="closeDetalleModal()">&times;</span>
+                    <h2>Detalle del Movimiento</h2>
+                    <div id="detalleContent"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/movimientos.js"></script>
+</body>
+
+</html>

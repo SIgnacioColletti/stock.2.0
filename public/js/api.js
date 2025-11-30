@@ -107,10 +107,7 @@ const authAPI = {
     return await apiRequest("/auth/perfil", "GET");
   },
 };
-
-// API de Productos
 const productosAPI = {
-  // Listar productos
   getAll: async (params = {}) => {
     const queryString = new URLSearchParams(params).toString();
     return await apiRequest(
@@ -119,28 +116,23 @@ const productosAPI = {
     );
   },
 
-  // Obtener un producto
   getById: async (id) => {
     return await apiRequest(`/productos/${id}`, "GET");
   },
 
-  // Crear producto
   create: async (producto) => {
     return await apiRequest("/productos", "POST", producto);
   },
 
-  // Actualizar producto
   update: async (id, producto) => {
     return await apiRequest(`/productos/${id}`, "PUT", producto);
   },
 
-  // Eliminar producto
   delete: async (id) => {
     return await apiRequest(`/productos/${id}`, "DELETE");
   },
 
-  // Búsqueda avanzada
-  search: async (params = {}) => {
+  search: async (params) => {
     const queryString = new URLSearchParams(params).toString();
     return await apiRequest(`/productos/buscar?${queryString}`, "GET");
   },
@@ -169,37 +161,31 @@ const categoriasAPI = {
     return await apiRequest(`/categorias/${id}`, "DELETE");
   },
 };
-
-// API de Movimientos
 const movimientosAPI = {
-  // Registrar venta (salida de stock)
-  registrarVenta: async (producto_id, cantidad, observaciones = "") => {
-    return await apiRequest("/movimientos", "POST", {
-      producto_id,
-      tipo_movimiento: "salida",
+  getAll: async () => {
+    return await apiRequest("/movimientos", "GET");
+  },
+
+  getByProducto: async (productoId) => {
+    return await apiRequest(`/movimientos/producto/${productoId}`, "GET");
+  },
+
+  registrarEntrada: async (productoId, cantidad, observaciones) => {
+    return await apiRequest("/movimientos/entrada", "POST", {
+      producto_id: productoId,
       cantidad,
-      motivo: "venta",
-      observaciones,
+      notas: observaciones,
     });
   },
 
-  // Registrar compra (entrada de stock)
-  registrarCompra: async (producto_id, cantidad, observaciones = "") => {
-    return await apiRequest("/movimientos", "POST", {
-      producto_id,
-      tipo_movimiento: "entrada",
+  registrarVenta: async (productoId, cantidad, observaciones) => {
+    return await apiRequest("/movimientos/salida", "POST", {
+      producto_id: productoId,
       cantidad,
-      motivo: "compra",
-      observaciones,
+      notas: observaciones,
     });
-  },
-
-  // Obtener historial
-  getHistorial: async (producto_id) => {
-    return await apiRequest(`/movimientos/producto/${producto_id}`, "GET");
   },
 };
-
 // API de Reportes
 const reportesAPI = {
   // Dashboard general
@@ -292,3 +278,5 @@ const displayUserEmail = () => {
     emailElement.textContent = getUserEmail() || "Usuario";
   }
 };
+
+// API de Productos (actualizar con nuevos métodos)

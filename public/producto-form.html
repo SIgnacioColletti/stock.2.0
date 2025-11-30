@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Producto - Stock Kiosco</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-full {
+            grid-column: 1 / -1;
+        }
+
+        .preview-card {
+            background: var(--light-gray);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .preview-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .preview-item:last-child {
+            border-bottom: none;
+        }
+
+        .preview-label {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .preview-value {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>🏪 Stock Kiosco</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/dashboard.html" class="nav-item">
+                    📊 Dashboard
+                </a>
+                <a href="/productos.html" class="nav-item active">
+                    📦 Productos
+                </a>
+                <a href="/categorias.html" class="nav-item">
+                    🏷️ Categorías
+                </a>
+                <a href="/proveedores.html" class="nav-item">
+                    🚚 Proveedores
+                </a>
+                <a href="/lista-compras.html" class="nav-item">
+                    🛒 Lista de Compras
+                </a>
+                <a href="/movimientos.html" class="nav-item">
+                    📋 Movimientos
+                </a>
+                <a href="#" class="nav-item" onclick="logout()">
+                    🚪 Cerrar Sesión
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <p id="userEmail"></p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="page-header">
+                <div>
+                    <h1 id="pageTitle">Nuevo Producto</h1>
+                    <p class="subtitle">Complete todos los datos del producto</p>
+                </div>
+                <a href="/productos.html" class="btn btn-secondary">
+                    ← Volver a Productos
+                </a>
+            </header>
+
+            <!-- Formulario -->
+            <div style="max-width: 1000px;">
+                <form id="productoForm">
+                    <input type="hidden" id="productoId">
+
+                    <!-- Información Básica -->
+                    <div
+                        style="background: white; padding: 25px; border-radius: 12px; margin-bottom: 20px; box-shadow: var(--shadow);">
+                        <h3 style="margin-bottom: 20px; color: var(--dark);">📝 Información Básica</h3>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="nombre">Nombre del Producto *</label>
+                                <input type="text" id="nombre" placeholder="Ej: Coca Cola 2.25L" required
+                                    maxlength="200">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="codigoBarras">Código de Barras</label>
+                                <input type="text" id="codigoBarras" placeholder="7790001234567" maxlength="50">
+                                <small class="form-hint">Escanee o ingrese manualmente</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="categoriaId">Categoría *</label>
+                                <select id="categoriaId" required>
+                                    <option value="">Seleccione una categoría</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="proveedorId">Proveedor</label>
+                                <select id="proveedorId">
+                                    <option value="">Sin proveedor</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group form-full">
+                                <label for="descripcion">Descripción</label>
+                                <textarea id="descripcion" rows="3" placeholder="Descripción detallada del producto..."
+                                    maxlength="500"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Precios -->
+                    <div
+                        style="background: white; padding: 25px; border-radius: 12px; margin-bottom: 20px; box-shadow: var(--shadow);">
+                        <h3 style="margin-bottom: 20px; color: var(--dark);">💰 Precios y Rentabilidad</h3>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="precioCompra">Precio de Compra *</label>
+                                <input type="number" id="precioCompra" placeholder="0.00" step="0.01" min="0" required>
+                                <small class="form-hint">Costo unitario del producto</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="precioVenta">Precio de Venta *</label>
+                                <input type="number" id="precioVenta" placeholder="0.00" step="0.01" min="0" required>
+                                <small class="form-hint">Precio al público</small>
+                            </div>
+                        </div>
+
+                        <!-- Preview de Ganancia -->
+                        <div class="preview-card" id="gananciaPreview" style="display: none;">
+                            <div class="preview-item">
+                                <span class="preview-label">Ganancia Unitaria:</span>
+                                <span class="preview-value" id="gananciaUnitaria">$0.00</span>
+                            </div>
+                            <div class="preview-item">
+                                <span class="preview-label">Margen de Ganancia:</span>
+                                <span class="preview-value" id="margenPorcentaje">0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stock -->
+                    <div
+                        style="background: white; padding: 25px; border-radius: 12px; margin-bottom: 20px; box-shadow: var(--shadow);">
+                        <h3 style="margin-bottom: 20px; color: var(--dark);">📦 Control de Stock</h3>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="stockActual">Stock Actual *</label>
+                                <input type="number" id="stockActual" placeholder="0" min="0" required value="0">
+                                <small class="form-hint">Cantidad disponible en inventario</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="stockMinimo">Stock Mínimo *</label>
+                                <input type="number" id="stockMinimo" placeholder="0" min="0" required value="5">
+                                <small class="form-hint">Alerta cuando stock esté por debajo</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="fechaVencimiento">Fecha de Vencimiento</label>
+                                <input type="date" id="fechaVencimiento">
+                                <small class="form-hint">Opcional: para productos perecederos</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="activo" checked>
+                                    Producto activo
+                                </label>
+                                <small class="form-hint">Los productos inactivos no aparecen en ventas</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="form-actions"
+                        style="background: white; padding: 20px; border-radius: 12px; box-shadow: var(--shadow);">
+                        <a href="/productos.html" class="btn btn-secondary">
+                            Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            💾 Guardar Producto
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/producto-form.js"></script>
+</body>
+
+</html>

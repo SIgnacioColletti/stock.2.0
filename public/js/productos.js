@@ -41,15 +41,14 @@ const loadProductos = async (termino = "") => {
     let response;
 
     if (termino.trim()) {
-      response = await productosAPI.search({ termino, limite: 50 });
+      response = await productosAPI.search({ termino, limite: 100 });
     } else {
-      response = await productosAPI.getAll({ limite: 50 });
+      response = await productosAPI.getAll({ limite: 100 });
     }
 
     console.log("📊 Respuesta de la API:", response);
 
     if (response.success) {
-      // Asegurarse de que data sea un array
       productos = Array.isArray(response.data) ? response.data : [];
 
       console.log(`✅ ${productos.length} productos cargados`);
@@ -127,7 +126,7 @@ const renderProductos = () => {
       return `
             <tr>
                 <td>${producto.codigo_barras || "-"}</td>
-                <td>${producto.nombre || "Sin nombre"}</td>
+                <td><strong>${producto.nombre || "Sin nombre"}</strong></td>
                 <td>${producto.categoria || "Sin categoría"}</td>
                 <td ${stockClass}>
                     ${producto.stock_actual || 0} / ${
@@ -139,19 +138,33 @@ const renderProductos = () => {
                 <td>${margen}%</td>
                 <td>
                     <button 
+                        class="btn btn-small" 
+                        style="background: var(--info); color: white; margin-right: 5px;"
+                        onclick="editarProducto(${producto.id})"
+                        title="Editar"
+                    >
+                        ✏️
+                    </button>
+                    <button 
                         class="btn btn-success btn-small" 
                         onclick="showVentaModal(${producto.id}, '${(
         producto.nombre || ""
       ).replace(/'/g, "\\'")}', ${producto.stock_actual || 0})"
                         ${(producto.stock_actual || 0) === 0 ? "disabled" : ""}
+                        title="Vender"
                     >
-                        🛒 Vender
+                        🛒
                     </button>
                 </td>
             </tr>
         `;
     })
     .join("");
+};
+
+// Editar producto - Redirigir al formulario
+const editarProducto = (id) => {
+  window.location.href = `/producto-form.html?id=${id}`;
 };
 
 // Buscar productos
@@ -226,7 +239,7 @@ ventaForm.addEventListener("submit", async (e) => {
     if (response.success) {
       alert("✅ Venta registrada exitosamente");
       closeVentaModal();
-      loadProductos(searchInput.value); // Recargar productos
+      loadProductos(searchInput.value);
     }
   } catch (error) {
     console.error("Error al registrar venta:", error);
@@ -238,11 +251,9 @@ ventaForm.addEventListener("submit", async (e) => {
   }
 });
 
-// Función placeholder para agregar producto
+// Redirigir a formulario de nuevo producto
 const showAddProductModal = () => {
-  alert(
-    "🚧 Funcionalidad en desarrollo.\n\nPuedes agregar productos usando:\n- Postman\n- La API directamente\n\nEndpoint: POST /api/productos"
-  );
+  window.location.href = "/producto-form.html";
 };
 
 // Cargar productos al iniciar
