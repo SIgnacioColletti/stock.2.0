@@ -36,6 +36,8 @@ const loadProductos = async (termino = "") => {
     loadingDiv.style.display = "block";
     productosContent.style.display = "none";
 
+    console.log("📦 Cargando productos...");
+
     let response;
 
     if (termino.trim()) {
@@ -44,11 +46,13 @@ const loadProductos = async (termino = "") => {
       response = await productosAPI.getAll({ limite: 50 });
     }
 
+    console.log("📊 Respuesta de la API:", response);
+
     if (response.success) {
-      productos = response.data;
-      console.log("RESPONSE:", response);
-      console.log("DATA:", response.data);
-      console.log("ES ARRAY?", Array.isArray(response.data));
+      // Asegurarse de que data sea un array
+      productos = Array.isArray(response.data) ? response.data : [];
+
+      console.log(`✅ ${productos.length} productos cargados`);
 
       renderProductos();
 
@@ -59,26 +63,35 @@ const loadProductos = async (termino = "") => {
       } else {
         paginationInfo.textContent = `Total: ${productos.length} productos`;
       }
+    } else {
+      console.error("❌ Error en respuesta:", response);
+      productos = [];
+      renderProductos();
     }
 
     loadingDiv.style.display = "none";
     productosContent.style.display = "block";
   } catch (error) {
-    console.error("Error al cargar productos:", error);
+    console.error("❌ Error al cargar productos:", error);
+    productos = [];
     loadingDiv.innerHTML = `
-            <p style="color: var(--danger);">
-                ❌ Error al cargar productos: ${error.message}
-            </p>
-            <button class="btn btn-primary" onclick="loadProductos()">
-                Reintentar
-            </button>
+            <div style="color: var(--danger); text-align: center; padding: 40px;">
+                <h3 style="margin-bottom: 20px;">❌ Error al cargar productos</h3>
+                <p style="margin-bottom: 20px;">${error.message}</p>
+                <button class="btn btn-primary" onclick="loadProductos()">
+                    🔄 Reintentar
+                </button>
+                <a href="/dashboard.html" class="btn btn-secondary" style="margin-left: 10px;">
+                    📊 Ir al Dashboard
+                </a>
+            </div>
         `;
   }
 };
 
 // Renderizar tabla de productos
 const renderProductos = () => {
-  if (productos.length === 0) {
+  if (!Array.isArray(productos) || productos.length === 0) {
     productosTableBody.innerHTML = `
             <tr>
                 <td colspan="8" class="text-center">
@@ -91,39 +104,46 @@ const renderProductos = () => {
 
   productosTableBody.innerHTML = productos
     .map((producto) => {
-      const margen =
-        producto.margen_porcentaje ||
-        (
+      // Calcular margen
+      let margen = 0;
+      if (producto.margen_porcentaje) {
+        margen = producto.margen_porcentaje;
+      } else if (producto.precio_compra && producto.precio_venta) {
+        margen = (
           ((producto.precio_venta - producto.precio_compra) /
             producto.precio_compra) *
           100
         ).toFixed(2);
+      }
 
+      // Determinar color del stock
       let stockClass = "";
       if (producto.stock_actual === 0) {
         stockClass = 'style="color: var(--danger); font-weight: bold;"';
-      } else if (producto.stock_actual <= producto.stock_minimo) {
+      } else if (producto.stock_actual <= (producto.stock_minimo || 0)) {
         stockClass = 'style="color: var(--warning); font-weight: bold;"';
       }
 
       return `
             <tr>
                 <td>${producto.codigo_barras || "-"}</td>
-                <td>${producto.nombre}</td>
+                <td>${producto.nombre || "Sin nombre"}</td>
                 <td>${producto.categoria || "Sin categoría"}</td>
                 <td ${stockClass}>
-                    ${producto.stock_actual} / ${producto.stock_minimo}
+                    ${producto.stock_actual || 0} / ${
+        producto.stock_minimo || 0
+      }
                 </td>
-                <td>${formatCurrency(producto.precio_compra)}</td>
-                <td>${formatCurrency(producto.precio_venta)}</td>
+                <td>${formatCurrency(producto.precio_compra || 0)}</td>
+                <td>${formatCurrency(producto.precio_venta || 0)}</td>
                 <td>${margen}%</td>
                 <td>
                     <button 
                         class="btn btn-success btn-small" 
-                        onclick="showVentaModal(${producto.id}, '${
-        producto.nombre
-      }', ${producto.stock_actual})"
-                        ${producto.stock_actual === 0 ? "disabled" : ""}
+                        onclick="showVentaModal(${producto.id}, '${(
+        producto.nombre || ""
+      ).replace(/'/g, "\\'")}', ${producto.stock_actual || 0})"
+                        ${(producto.stock_actual || 0) === 0 ? "disabled" : ""}
                     >
                         🛒 Vender
                     </button>
@@ -218,14 +238,15 @@ ventaForm.addEventListener("submit", async (e) => {
   }
 });
 
-// Función placeholder para agregar producto (futuro)
+// Función placeholder para agregar producto
 const showAddProductModal = () => {
   alert(
-    "🚧 Funcionalidad en desarrollo. Usa Postman para agregar productos por ahora."
+    "🚧 Funcionalidad en desarrollo.\n\nPuedes agregar productos usando:\n- Postman\n- La API directamente\n\nEndpoint: POST /api/productos"
   );
 };
 
 // Cargar productos al iniciar
 document.addEventListener("DOMContentLoaded", () => {
+  console.log("🚀 Iniciando carga de productos...");
   loadProductos();
 });

@@ -40,63 +40,94 @@ const loadDashboard = async () => {
     loadingDiv.style.display = "block";
     dashboardContent.style.display = "none";
 
-    // Cargar datos en paralelo
-    const [dashboardData, alertasData, stockBajoData] = await Promise.all([
-      reportesAPI.getDashboard(),
-      alertasAPI.getDashboard(),
-      alertasAPI.getStockBajo(),
-    ]);
+    console.log("🔍 Cargando dashboard...");
 
-    // Actualizar estadísticas generales
-    if (dashboardData.success) {
-      const data = dashboardData.data;
+    // Cargar datos en paralelo con manejo de errores individual
+    const [dashboardData, alertasData, stockBajoData] =
+      await Promise.allSettled([
+        reportesAPI.getDashboard(),
+        alertasAPI.getDashboard(),
+        alertasAPI.getStockBajo(),
+      ]);
 
-      totalProductosEl.textContent = data.productos.activos;
+    // Procesar dashboard general
+    if (dashboardData.status === "fulfilled" && dashboardData.value.success) {
+      const data = dashboardData.value.data;
+
+      totalProductosEl.textContent = data.productos.activos || 0;
       valorInventarioEl.textContent = formatCurrency(
-        data.inventario.valor_venta
+        data.inventario.valor_venta || 0
       );
-      ventasHoyEl.textContent = formatCurrency(data.ventas.hoy.ingresos);
+      ventasHoyEl.textContent = formatCurrency(data.ventas.hoy.ingresos || 0);
 
       // Ventas del mes
-      ingresosMesEl.textContent = formatCurrency(data.ventas.mes.ingresos);
-      costosMesEl.textContent = formatCurrency(data.ventas.mes.costos);
-      gananciaMesEl.textContent = formatCurrency(data.ventas.mes.ganancia);
-      transaccionesMesEl.textContent = data.ventas.mes.transacciones;
+      ingresosMesEl.textContent = formatCurrency(data.ventas.mes.ingresos || 0);
+      costosMesEl.textContent = formatCurrency(data.ventas.mes.costos || 0);
+      gananciaMesEl.textContent = formatCurrency(data.ventas.mes.ganancia || 0);
+      transaccionesMesEl.textContent = data.ventas.mes.transacciones || 0;
+
+      console.log("✅ Dashboard general cargado");
+    } else {
+      console.error("❌ Error en dashboard general:", dashboardData.reason);
+      // Valores por defecto
+      totalProductosEl.textContent = "0";
+      valorInventarioEl.textContent = formatCurrency(0);
+      ventasHoyEl.textContent = formatCurrency(0);
+      ingresosMesEl.textContent = formatCurrency(0);
+      costosMesEl.textContent = formatCurrency(0);
+      gananciaMesEl.textContent = formatCurrency(0);
+      transaccionesMesEl.textContent = "0";
     }
 
-    // Actualizar alertas
-    if (alertasData.success) {
-      const data = alertasData.data;
+    // Procesar alertas
+    if (alertasData.status === "fulfilled" && alertasData.value.success) {
+      const data = alertasData.value.data;
 
-      stockBajoEl.textContent = data.stock_bajo.total;
-      proximosVencerEl.textContent = data.proximos_vencer.total;
-      sinMovimientoEl.textContent = data.sin_movimiento.total;
-      alertasTotalEl.textContent = data.alertas_totales;
+      stockBajoEl.textContent = data.stock_bajo.total || 0;
+      proximosVencerEl.textContent = data.proximos_vencer.total || 0;
+      sinMovimientoEl.textContent = data.sin_movimiento.total || 0;
+      alertasTotalEl.textContent = data.alertas_totales || 0;
+
+      console.log("✅ Alertas cargadas");
+    } else {
+      console.error("❌ Error en alertas:", alertasData.reason);
+      // Valores por defecto
+      stockBajoEl.textContent = "0";
+      proximosVencerEl.textContent = "0";
+      sinMovimientoEl.textContent = "0";
+      alertasTotalEl.textContent = "0";
     }
 
-    // Actualizar tabla de productos con stock bajo
-    if (stockBajoData.success) {
-      renderStockBajoTable(stockBajoData.data);
+    // Procesar stock bajo
+    if (stockBajoData.status === "fulfilled" && stockBajoData.value.success) {
+      renderStockBajoTable(stockBajoData.value.data);
+      console.log("✅ Stock bajo cargado");
+    } else {
+      console.error("❌ Error en stock bajo:", stockBajoData.reason);
+      renderStockBajoTable([]);
     }
 
     loadingDiv.style.display = "none";
     dashboardContent.style.display = "block";
+
+    console.log("✅ Dashboard completamente cargado");
   } catch (error) {
-    console.error("Error al cargar dashboard:", error);
+    console.error("❌ Error crítico al cargar dashboard:", error);
     loadingDiv.innerHTML = `
-            <p style="color: var(--danger);">
-                ❌ Error al cargar el dashboard: ${error.message}
-            </p>
-            <button class="btn btn-primary" onclick="loadDashboard()">
-                Reintentar
-            </button>
+            <div style="color: var(--danger); text-align: center; padding: 40px;">
+                <h3 style="margin-bottom: 20px;">❌ Error al cargar el dashboard</h3>
+                <p style="margin-bottom: 20px;">${error.message}</p>
+                <button class="btn btn-primary" onclick="location.reload()">
+                    🔄 Recargar Página
+                </button>
+            </div>
         `;
   }
 };
 
 // Renderizar tabla de productos con stock bajo
 const renderStockBajoTable = (productos) => {
-  if (productos.length === 0) {
+  if (!productos || productos.length === 0) {
     productosStockBajoTbody.innerHTML = `
             <tr>
                 <td colspan="5" class="text-center">
@@ -113,17 +144,19 @@ const renderStockBajoTable = (productos) => {
   productosStockBajoTbody.innerHTML = productosLimitados
     .map((producto) => {
       let badgeClass = "badge-warning";
-      let nivelTexto = producto.nivel_alerta;
+      let nivelTexto = producto.nivel_alerta || "ADVERTENCIA";
 
-      if (producto.nivel_alerta === "CRÍTICO") {
+      if (nivelTexto === "CRÍTICO") {
         badgeClass = "badge-danger";
+      } else if (nivelTexto === "URGENTE") {
+        badgeClass = "badge-warning";
       }
 
       return `
             <tr>
-                <td>${producto.nombre}</td>
-                <td>${producto.stock_actual}</td>
-                <td>${producto.stock_minimo}</td>
+                <td>${producto.nombre || "Sin nombre"}</td>
+                <td>${producto.stock_actual || 0}</td>
+                <td>${producto.stock_minimo || 0}</td>
                 <td>
                     <span class="badge ${badgeClass}">
                         ${nivelTexto}
@@ -137,4 +170,7 @@ const renderStockBajoTable = (productos) => {
 };
 
 // Cargar el dashboard al cargar la página
-document.addEventListener("DOMContentLoaded", loadDashboard);
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("🚀 Iniciando carga del dashboard...");
+  loadDashboard();
+});
