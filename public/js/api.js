@@ -251,6 +251,22 @@ const proveedoresAPI = {
     return await apiRequest("/proveedores", "GET");
   },
 
+  getById: async (id) => {
+    return await apiRequest(`/proveedores/${id}`, "GET");
+  },
+
+  create: async (proveedor) => {
+    return await apiRequest("/proveedores", "POST", proveedor);
+  },
+
+  update: async (id, proveedor) => {
+    return await apiRequest(`/proveedores/${id}`, "PUT", proveedor);
+  },
+
+  delete: async (id) => {
+    return await apiRequest(`/proveedores/${id}`, "DELETE");
+  },
+
   getListaCompras: async () => {
     return await apiRequest("/proveedores/lista-compras", "GET");
   },

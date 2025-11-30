@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proveedores - Stock Kiosco</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>🏪 Stock Kiosco</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/dashboard.html" class="nav-item">
+                    📊 Dashboard
+                </a>
+                <a href="/productos.html" class="nav-item">
+                    📦 Productos
+                </a>
+                <a href="/categorias.html" class="nav-item">
+                    🏷️ Categorías
+                </a>
+                <a href="/proveedores.html" class="nav-item active">
+                    🚚 Proveedores
+                </a>
+                <a href="/lista-compras.html" class="nav-item">
+                    🛒 Lista de Compras
+                </a>
+                <a href="#" class="nav-item" onclick="logout()">
+                    🚪 Cerrar Sesión
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <p id="userEmail"></p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="page-header">
+                <div>
+                    <h1>Gestión de Proveedores</h1>
+                    <p class="subtitle">Administra tus proveedores y contactos</p>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <a href="/lista-compras.html" class="btn" style="background: var(--success); color: white;">
+                        🛒 Lista de Compras
+                    </a>
+                    <button class="btn btn-primary" onclick="showCreateModal()">
+                        ➕ Nuevo Proveedor
+                    </button>
+                </div>
+            </header>
+
+            <!-- Buscador -->
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="🔍 Buscar por nombre, contacto, teléfono o email..."
+                    class="search-input">
+            </div>
+
+            <!-- Loading -->
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Cargando proveedores...</p>
+            </div>
+
+            <!-- Contenido -->
+            <div id="proveedoresContent" style="display: none;">
+                <!-- Stats Cards -->
+                <div class="stats-grid" style="margin-bottom: 30px;">
+                    <div class="stat-card">
+                        <div class="stat-icon">🚚</div>
+                        <div class="stat-content">
+                            <h3 id="totalProveedores">0</h3>
+                            <p>Total Proveedores</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-content">
+                            <h3 id="proveedoresActivos">0</h3>
+                            <p>Activos</p>
+                        </div>
+                    </div>
+                    <div class="stat-card warning">
+                        <div class="stat-icon">⚠️</div>
+                        <div class="stat-content">
+                            <h3 id="proveedoresStockBajo">0</h3>
+                            <p>Con Stock Bajo</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabla de Proveedores -->
+                <div class="table-section">
+                    <h2>Todos los Proveedores</h2>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Contacto</th>
+                                    <th>Teléfono</th>
+                                    <th>Email</th>
+                                    <th>Productos</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="proveedoresTableBody">
+                                <tr>
+                                    <td colspan="7" class="text-center">Cargando...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Crear/Editar Proveedor -->
+            <div id="proveedorModal" class="modal">
+                <div class="modal-content" style="max-width: 600px;">
+                    <span class="close" onclick="closeModal()">&times;</span>
+                    <h2 id="modalTitle">Nuevo Proveedor</h2>
+
+                    <form id="proveedorForm">
+                        <input type="hidden" id="proveedorId">
+
+                        <div class="form-group">
+                            <label for="proveedorNombre">Nombre del Proveedor *</label>
+                            <input type="text" id="proveedorNombre" placeholder="Ej: Distribuidora La Mundial" required
+                                maxlength="100">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="proveedorContacto">Persona de Contacto</label>
+                            <input type="text" id="proveedorContacto" placeholder="Ej: Juan Pérez" maxlength="100">
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div class="form-group">
+                                <label for="proveedorTelefono">Teléfono *</label>
+                                <input type="tel" id="proveedorTelefono" placeholder="341-5551234" required
+                                    maxlength="20">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="proveedorEmail">Email</label>
+                                <input type="email" id="proveedorEmail" placeholder="ventas@proveedor.com"
+                                    maxlength="100">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="proveedorDireccion">Dirección</label>
+                            <textarea id="proveedorDireccion" rows="2" placeholder="Dirección completa del proveedor..."
+                                maxlength="200"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="proveedorNotas">Notas / Observaciones</label>
+                            <textarea id="proveedorNotas" rows="3"
+                                placeholder="Horarios de atención, días de entrega, condiciones de pago, etc..."
+                                maxlength="500"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="proveedorActivo" checked>
+                                Proveedor activo
+                            </label>
+                            <small class="form-hint">Los proveedores inactivos no aparecerán en las listas</small>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" onclick="closeModal()">
+                                Cancelar
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                💾 Guardar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Modal Ver Productos del Proveedor -->
+            <div id="productosModal" class="modal">
+                <div class="modal-content" style="max-width: 800px;">
+                    <span class="close" onclick="closeProductosModal()">&times;</span>
+                    <h2 id="productosModalTitle">Productos</h2>
+
+                    <div id="productosModalContent">
+                        <p class="text-center">Cargando...</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/proveedores.js"></script>
+</body>
+
+</html>
