@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes - Stock Kiosco</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+            margin-top: 20px;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+        }
+
+        .filter-tab {
+            padding: 8px 16px;
+            background: var(--light-gray);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .filter-tab:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .filter-tab.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 1024px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--gray);
+        }
+
+        .no-data h3 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>🏪 Stock Kiosco</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/dashboard.html" class="nav-item">
+                    📊 Dashboard
+                </a>
+                <a href="/productos.html" class="nav-item">
+                    📦 Productos
+                </a>
+                <a href="/categorias.html" class="nav-item">
+                    🏷️ Categorías
+                </a>
+                <a href="/proveedores.html" class="nav-item">
+                    🚚 Proveedores
+                </a>
+                <a href="/lista-compras.html" class="nav-item">
+                    🛒 Lista de Compras
+                </a>
+                <a href="/movimientos.html" class="nav-item">
+                    📋 Movimientos
+                </a>
+                <a href="/reportes.html" class="nav-item active">
+                    📈 Reportes
+                </a>
+                <a href="#" class="nav-item" onclick="logout()">
+                    🚪 Cerrar Sesión
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <p id="userEmail"></p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="page-header">
+                <div>
+                    <h1>Reportes y Análisis</h1>
+                    <p class="subtitle">Visualiza el rendimiento de tu negocio</p>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-secondary" onclick="exportarReportes()">
+                        📥 Exportar
+                    </button>
+                    <button class="btn btn-primary" onclick="actualizarReportes()">
+                        🔄 Actualizar
+                    </button>
+                </div>
+            </header>
+
+            <!-- Filtros de Período -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3>Período de Análisis</h3>
+                    <div class="filter-tabs">
+                        <button class="filter-tab" onclick="cambiarPeriodo('hoy')" id="tabHoy">
+                            Hoy
+                        </button>
+                        <button class="filter-tab" onclick="cambiarPeriodo('semana')" id="tabSemana">
+                            Semana
+                        </button>
+                        <button class="filter-tab active" onclick="cambiarPeriodo('mes')" id="tabMes">
+                            Mes
+                        </button>
+                        <button class="filter-tab" onclick="cambiarPeriodo('todo')" id="tabTodo">
+                            Todo
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading -->
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Generando reportes...</p>
+            </div>
+
+            <!-- Contenido -->
+            <div id="reportesContent" style="display: none;">
+                <!-- Métricas Principales -->
+                <div class="grid-2" style="margin-bottom: 20px;">
+                    <div class="metric-card">
+                        <div class="metric-label">💰 Ingresos del Período</div>
+                        <div class="metric-value" id="metricIngresos">$0</div>
+                        <div class="metric-label">Ganancia: <span id="metricGanancia">$0</span></div>
+                    </div>
+                    <div class="metric-card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                        <div class="metric-label">📦 Productos Vendidos</div>
+                        <div class="metric-value" id="metricUnidades">0</div>
+                        <div class="metric-label">En <span id="metricTransacciones">0</span> transacciones</div>
+                    </div>
+                </div>
+
+                <!-- Gráficos Principales -->
+                <div class="grid-2">
+                    <!-- Productos Más Vendidos -->
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3 class="chart-title">🏆 Productos Más Vendidos</h3>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="chartMasVendidos"></canvas>
+                        </div>
+                        <div id="noDataMasVendidos" class="no-data" style="display: none;">
+                            <h3>📊</h3>
+                            <p>No hay datos de ventas en este período</p>
+                        </div>
+                    </div>
+
+                    <!-- Ventas por Categoría -->
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3 class="chart-title">🏷️ Ventas por Categoría</h3>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="chartCategorias"></canvas>
+                        </div>
+                        <div id="noDataCategorias" class="no-data" style="display: none;">
+                            <h3>📊</h3>
+                            <p>No hay datos de categorías en este período</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rentabilidad por Producto -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">💰 Top 10 - Rentabilidad por Producto</h3>
+                    </div>
+                    <div class="chart-wrapper" style="height: 400px;">
+                        <canvas id="chartRentabilidad"></canvas>
+                    </div>
+                    <div id="noDataRentabilidad" class="no-data" style="display: none;">
+                        <h3>📊</h3>
+                        <p>No hay datos de rentabilidad</p>
+                    </div>
+                </div>
+
+                <!-- Productos con Stock Bajo -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">⚠️ Productos con Stock Bajo</h3>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="chartStockBajo"></canvas>
+                    </div>
+                    <div id="noDataStockBajo" class="no-data" style="display: none;">
+                        <h3>✅</h3>
+                        <p>¡Todos los productos tienen stock suficiente!</p>
+                    </div>
+                </div>
+
+                <!-- Tabla de Productos Más Vendidos -->
+                <div class="table-section">
+                    <h2>📊 Detalle de Productos Más Vendidos</h2>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Categoría</th>
+                                    <th>Cantidad Vendida</th>
+                                    <th>Ingresos</th>
+                                    <th>Ganancia</th>
+                                    <th>Margen %</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaMasVendidos">
+                                <tr>
+                                    <td colspan="6" class="text-center">Cargando...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/reportes.js"></script>
+</body>
+
+</html>

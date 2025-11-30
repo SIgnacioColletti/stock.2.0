@@ -187,13 +187,12 @@ const movimientosAPI = {
   },
 };
 // API de Reportes
+// API de Reportes
 const reportesAPI = {
-  // Dashboard general
   getDashboard: async () => {
     return await apiRequest("/reportes/dashboard", "GET");
   },
 
-  // Productos más vendidos
   getMasVendidos: async (params = {}) => {
     const queryString = new URLSearchParams(params).toString();
     return await apiRequest(
@@ -202,9 +201,24 @@ const reportesAPI = {
     );
   },
 
-  // Rentabilidad
+  getMenosVendidos: async (params = {}) => {
+    const queryString = new URLSearchParams(params).toString();
+    return await apiRequest(
+      `/reportes/menos-vendidos${queryString ? "?" + queryString : ""}`,
+      "GET"
+    );
+  },
+
   getRentabilidad: async () => {
     return await apiRequest("/reportes/rentabilidad", "GET");
+  },
+
+  getVentasPorCategoria: async (params = {}) => {
+    const queryString = new URLSearchParams(params).toString();
+    return await apiRequest(
+      `/reportes/ventas-categoria${queryString ? "?" + queryString : ""}`,
+      "GET"
+    );
   },
 };
 
@@ -278,5 +292,3 @@ const displayUserEmail = () => {
     emailElement.textContent = getUserEmail() || "Usuario";
   }
 };
-
-// API de Productos (actualizar con nuevos métodos)
