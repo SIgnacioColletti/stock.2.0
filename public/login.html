@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Stock Kiosco</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body class="login-page">
+    <div class="login-container">
+        <div class="login-box">
+            <div class="logo">
+                <h1>🏪 Stock Kiosco</h1>
+                <p>Sistema de Control de Inventario</p>
+            </div>
+
+            <!-- Formulario de Login -->
+            <form id="loginForm" class="auth-form">
+                <h2>Iniciar Sesión</h2>
+
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" placeholder="tu@email.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="loginPassword">Contraseña</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Ingresar</button>
+
+                <p class="toggle-form">
+                    ¿No tienes cuenta?
+                    <a href="#" id="showRegister">Regístrate aquí</a>
+                </p>
+            </form>
+
+            <!-- Formulario de Registro -->
+            <form id="registerForm" class="auth-form" style="display: none;">
+                <h2>Crear Cuenta</h2>
+
+                <div class="form-group">
+                    <label for="registerNombre">Nombre</label>
+                    <input type="text" id="registerNombre" placeholder="Tu nombre completo" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="registerEmail">Email</label>
+                    <input type="email" id="registerEmail" placeholder="tu@email.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="registerPassword">Contraseña</label>
+                    <input type="password" id="registerPassword" placeholder="Mínimo 6 caracteres" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Registrarse</button>
+
+                <p class="toggle-form">
+                    ¿Ya tienes cuenta?
+                    <a href="#" id="showLogin">Inicia sesión aquí</a>
+                </p>
+            </form>
+
+            <!-- Mensajes -->
+            <div id="authMessage" class="message" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+</body>
+
+</html>

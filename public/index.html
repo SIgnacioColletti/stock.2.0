@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Kiosco - Sistema de Inventario</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        .landing-page {
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+        }
+
+        .landing-container {
+            text-align: center;
+            max-width: 800px;
+            padding: 40px 20px;
+        }
+
+        .landing-container h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+        }
+
+        .landing-container .subtitle {
+            font-size: 1.3rem;
+            margin-bottom: 40px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px 20px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .feature-card .icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .feature-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .feature-card p {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 40px;
+        }
+
+        .cta-btn {
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.3s;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .cta-btn.primary {
+            background: var(--white);
+            color: var(--primary);
+        }
+
+        .cta-btn.secondary {
+            background: transparent;
+            color: var(--white);
+            border: 2px solid var(--white);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="landing-page">
+        <div class="landing-container">
+            <h1>🏪 Stock Kiosco</h1>
+            <p class="subtitle">
+                Sistema inteligente de control de inventario para kioscos y almacenes
+            </p>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="icon">📦</div>
+                    <h3>Gestión de Productos</h3>
+                    <p>Control total de tu inventario en tiempo real</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="icon">📊</div>
+                    <h3>Reportes</h3>
+                    <p>Análisis y estadísticas de ventas</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="icon">🔔</div>
+                    <h3>Alertas</h3>
+                    <p>Notificaciones de stock bajo y vencimientos</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="icon">💰</div>
+                    <h3>Rentabilidad</h3>
+                    <p>Calcula márgenes y ganancias</p>
+                </div>
+            </div>
+
+            <div class="cta-buttons">
+                <a href="/login.html" class="cta-btn primary">
+                    Comenzar Ahora
+                </a>
+                <a href="https://github.com/tu-usuario/stock-kiosco" class="cta-btn secondary" target="_blank">
+                    Ver en GitHub
+                </a>
+            </div>
+
+            <p style="margin-top: 60px; opacity: 0.8; font-size: 0.9rem;">
+                ¿Ya tienes cuenta? <a href="/login.html" style="color: white; font-weight: bold;">Inicia sesión</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Redirigir si ya está autenticado
+        if (localStorage.getItem('token')) {
+            window.location.href = '/dashboard.html';
+        }
+    </script>
+</body>
+
+</html>

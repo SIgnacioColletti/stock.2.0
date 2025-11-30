@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Productos - Stock Kiosco</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>🏪 Stock Kiosco</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/dashboard.html" class="nav-item">
+                    📊 Dashboard
+                </a>
+                <a href="/productos.html" class="nav-item active">
+                    📦 Productos
+                </a>
+                <a href="#" class="nav-item" onclick="logout()">
+                    🚪 Cerrar Sesión
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <p id="userEmail"></p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="page-header">
+                <div>
+                    <h1>Gestión de Productos</h1>
+                    <p class="subtitle">Administra tu inventario</p>
+                </div>
+                <button class="btn btn-primary" onclick="showAddProductModal()">
+                    ➕ Nuevo Producto
+                </button>
+            </header>
+
+            <!-- Buscador -->
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="🔍 Buscar producto por nombre..." class="search-input">
+                <button class="btn btn-secondary" onclick="buscarProductos()">
+                    Buscar
+                </button>
+            </div>
+
+            <!-- Loading -->
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Cargando productos...</p>
+            </div>
+
+            <!-- Tabla de Productos -->
+            <div id="productosContent" style="display: none;">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Nombre</th>
+                                <th>Categoría</th>
+                                <th>Stock</th>
+                                <th>Precio Compra</th>
+                                <th>Precio Venta</th>
+                                <th>Margen</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productosTableBody">
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Paginación -->
+                <div class="pagination">
+                    <p id="paginationInfo"></p>
+                </div>
+            </div>
+
+            <!-- Modal Venta Rápida -->
+            <div id="ventaModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" onclick="closeVentaModal()">&times;</span>
+                    <h2>🛒 Registrar Venta</h2>
+                    <form id="ventaForm">
+                        <input type="hidden" id="ventaProductoId">
+                        <div class="form-group">
+                            <label>Producto</label>
+                            <p id="ventaProductoNombre" class="product-name"></p>
+                        </div>
+                        <div class="form-group">
+                            <label>Stock Disponible</label>
+                            <p id="ventaStockDisponible" class="stock-info"></p>
+                        </div>
+                        <div class="form-group">
+                            <label for="ventaCantidad">Cantidad a Vender</label>
+                            <input type="number" id="ventaCantidad" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="ventaObservaciones">Observaciones (opcional)</label>
+                            <textarea id="ventaObservaciones" rows="3"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Registrar Venta</button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/productos.js"></script>
+</body>
+
+</html>

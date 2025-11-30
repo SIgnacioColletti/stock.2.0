@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Stock Kiosco</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>🏪 Stock Kiosco</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/dashboard.html" class="nav-item active">
+                    📊 Dashboard
+                </a>
+                <a href="/productos.html" class="nav-item">
+                    📦 Productos
+                </a>
+                <a href="#" class="nav-item" onclick="logout()">
+                    🚪 Cerrar Sesión
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <p id="userEmail"></p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="page-header">
+                <h1>Dashboard General</h1>
+                <p class="subtitle">Vista general de tu inventario</p>
+            </header>
+
+            <!-- Loading -->
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Cargando datos...</p>
+            </div>
+
+            <!-- Dashboard Content -->
+            <div id="dashboardContent" style="display: none;">
+                <!-- Resumen General -->
+                <section class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">📦</div>
+                        <div class="stat-content">
+                            <h3 id="totalProductos">-</h3>
+                            <p>Total Productos</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-content">
+                            <h3 id="valorInventario">-</h3>
+                            <p>Valor Inventario</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card warning">
+                        <div class="stat-icon">⚠️</div>
+                        <div class="stat-content">
+                            <h3 id="alertasTotal">-</h3>
+                            <p>Alertas Activas</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card success">
+                        <div class="stat-icon">📈</div>
+                        <div class="stat-content">
+                            <h3 id="ventasHoy">-</h3>
+                            <p>Ventas Hoy</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Alertas -->
+                <section class="alerts-section">
+                    <h2>🔔 Alertas Importantes</h2>
+                    <div class="alerts-grid">
+                        <div class="alert-box alert-danger">
+                            <h4>Stock Bajo</h4>
+                            <p class="alert-number" id="stockBajo">-</p>
+                            <p class="alert-text">productos críticos</p>
+                        </div>
+                        <div class="alert-box alert-warning">
+                            <h4>Próximos a Vencer</h4>
+                            <p class="alert-number" id="proximosVencer">-</p>
+                            <p class="alert-text">productos (7 días)</p>
+                        </div>
+                        <div class="alert-box alert-info">
+                            <h4>Sin Movimiento</h4>
+                            <p class="alert-number" id="sinMovimiento">-</p>
+                            <p class="alert-text">productos (30 días)</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Productos con Stock Bajo -->
+                <section class="table-section">
+                    <h2>📉 Productos con Stock Bajo</h2>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Stock Actual</th>
+                                    <th>Stock Mínimo</th>
+                                    <th>Nivel</th>
+                                    <th>Proveedor</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productosStockBajo">
+                                <tr>
+                                    <td colspan="5" class="text-center">Cargando...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Ventas del Mes -->
+                <section class="sales-section">
+                    <h2>💵 Ventas del Mes</h2>
+                    <div class="sales-stats">
+                        <div class="sale-stat">
+                            <p class="sale-label">Ingresos</p>
+                            <p class="sale-value" id="ingresosMes">-</p>
+                        </div>
+                        <div class="sale-stat">
+                            <p class="sale-label">Costos</p>
+                            <p class="sale-value" id="costosMes">-</p>
+                        </div>
+                        <div class="sale-stat success">
+                            <p class="sale-label">Ganancia</p>
+                            <p class="sale-value" id="gananciaMes">-</p>
+                        </div>
+                        <div class="sale-stat">
+                            <p class="sale-label">Transacciones</p>
+                            <p class="sale-value" id="transaccionesMes">-</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/dashboard.js"></script>
+</body>
+
+</html>
