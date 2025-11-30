@@ -9,28 +9,39 @@ const listarCategorias = async (req, res) => {
   try {
     const { userId } = req;
 
-    // Obtener todas las categorías activas del usuario
+    // Obtener todas las categorías activas del usuario con conteo de productos
     const resultado = await db.query(
-      `SELECT id, nombre, descripcion, color, activo, created_at, updated_at
-       FROM categorias 
-       WHERE usuario_id = $1 AND activo = true
-       ORDER BY nombre ASC`,
+      `SELECT 
+        c.id, 
+        c.nombre, 
+        c.descripcion, 
+        c.color, 
+        c.activo, 
+        c.created_at, 
+        c.updated_at,
+        COUNT(p.id) as total_productos
+       FROM categorias c
+       LEFT JOIN productos p ON c.id = p.categoria_id AND p.activo = true
+       WHERE c.usuario_id = $1 AND c.activo = true
+       GROUP BY c.id
+       ORDER BY c.nombre ASC`,
       [userId]
     );
 
+    console.log(`✅ Se encontraron ${resultado.rows.length} categorías`);
+
     res.json({
       success: true,
-      data: {
-        categorias: resultado.rows,
-        total: resultado.rows.length,
-      },
+      data: resultado.rows,
+      total: resultado.rows.length,
+      message: "Categorías obtenidas exitosamente",
     });
   } catch (error) {
     console.error("❌ Error listando categorías:", error);
     res.status(500).json({
       success: false,
-      error: "Error listando categorías",
-      message: "Ocurrió un error al obtener las categorías",
+      error: error.message,
+      message: "Error al obtener categorías",
     });
   }
 };
@@ -45,9 +56,19 @@ const obtenerCategoria = async (req, res) => {
     const { id } = req.params;
 
     const resultado = await db.query(
-      `SELECT id, nombre, descripcion, color, activo, created_at, updated_at
-       FROM categorias 
-       WHERE id = $1 AND usuario_id = $2`,
+      `SELECT 
+        c.id, 
+        c.nombre, 
+        c.descripcion, 
+        c.color, 
+        c.activo, 
+        c.created_at, 
+        c.updated_at,
+        COUNT(p.id) as total_productos
+       FROM categorias c
+       LEFT JOIN productos p ON c.id = p.categoria_id AND p.activo = true
+       WHERE c.id = $1 AND c.usuario_id = $2
+       GROUP BY c.id`,
       [id, userId]
     );
 
@@ -61,16 +82,15 @@ const obtenerCategoria = async (req, res) => {
 
     res.json({
       success: true,
-      data: {
-        categoria: resultado.rows[0],
-      },
+      data: resultado.rows[0],
+      message: "Categoría obtenida exitosamente",
     });
   } catch (error) {
     console.error("❌ Error obteniendo categoría:", error);
     res.status(500).json({
       success: false,
-      error: "Error obteniendo categoría",
-      message: "Ocurrió un error al obtener la categoría",
+      error: error.message,
+      message: "Error al obtener la categoría",
     });
   }
 };
@@ -85,7 +105,7 @@ const crearCategoria = async (req, res) => {
     const { nombre, descripcion, color } = req.body;
 
     // Validaciones
-    if (!nombre) {
+    if (!nombre || nombre.trim() === "") {
       return res.status(400).json({
         success: false,
         error: "Nombre requerido",
@@ -97,7 +117,7 @@ const crearCategoria = async (req, res) => {
     const existe = await db.query(
       `SELECT id FROM categorias 
        WHERE usuario_id = $1 AND LOWER(nombre) = LOWER($2) AND activo = true`,
-      [userId, nombre]
+      [userId, nombre.trim()]
     );
 
     if (existe.rows.length > 0) {
@@ -113,7 +133,7 @@ const crearCategoria = async (req, res) => {
       `INSERT INTO categorias (usuario_id, nombre, descripcion, color)
        VALUES ($1, $2, $3, $4)
        RETURNING id, nombre, descripcion, color, activo, created_at`,
-      [userId, nombre, descripcion || null, color || "#6B7280"]
+      [userId, nombre.trim(), descripcion?.trim() || null, color || "#6B7280"]
     );
 
     console.log(`✅ Categoría creada: ${nombre} (ID: ${resultado.rows[0].id})`);
@@ -121,16 +141,14 @@ const crearCategoria = async (req, res) => {
     res.status(201).json({
       success: true,
       message: "Categoría creada exitosamente",
-      data: {
-        categoria: resultado.rows[0],
-      },
+      data: resultado.rows[0],
     });
   } catch (error) {
     console.error("❌ Error creando categoría:", error);
     res.status(500).json({
       success: false,
-      error: "Error creando categoría",
-      message: "Ocurrió un error al crear la categoría",
+      error: error.message,
+      message: "Error al crear la categoría",
     });
   }
 };
@@ -164,7 +182,7 @@ const editarCategoria = async (req, res) => {
       const nombreDuplicado = await db.query(
         `SELECT id FROM categorias 
          WHERE usuario_id = $1 AND LOWER(nombre) = LOWER($2) AND id != $3 AND activo = true`,
-        [userId, nombre, id]
+        [userId, nombre.trim(), id]
       );
 
       if (nombreDuplicado.rows.length > 0) {
@@ -183,13 +201,13 @@ const editarCategoria = async (req, res) => {
 
     if (nombre !== undefined) {
       query += `nombre = $${contador}, `;
-      valores.push(nombre);
+      valores.push(nombre.trim());
       contador++;
     }
 
     if (descripcion !== undefined) {
       query += `descripcion = $${contador}, `;
-      valores.push(descripcion);
+      valores.push(descripcion?.trim() || null);
       contador++;
     }
 
@@ -229,16 +247,14 @@ const editarCategoria = async (req, res) => {
     res.json({
       success: true,
       message: "Categoría actualizada exitosamente",
-      data: {
-        categoria: resultado.rows[0],
-      },
+      data: resultado.rows[0],
     });
   } catch (error) {
     console.error("❌ Error editando categoría:", error);
     res.status(500).json({
       success: false,
-      error: "Error editando categoría",
-      message: "Ocurrió un error al editar la categoría",
+      error: error.message,
+      message: "Error al editar la categoría",
     });
   }
 };
@@ -268,7 +284,7 @@ const eliminarCategoria = async (req, res) => {
 
     // Verificar si hay productos con esta categoría
     const productosAsociados = await db.query(
-      "SELECT COUNT(*) as total FROM productos WHERE categoria_id = $1 AND eliminado = false",
+      "SELECT COUNT(*) as total FROM productos WHERE categoria_id = $1 AND activo = true",
       [id]
     );
 
@@ -283,7 +299,10 @@ const eliminarCategoria = async (req, res) => {
     }
 
     // Soft delete: marcar como inactiva
-    await db.query("UPDATE categorias SET activo = false WHERE id = $1", [id]);
+    await db.query(
+      "UPDATE categorias SET activo = false, updated_at = CURRENT_TIMESTAMP WHERE id = $1",
+      [id]
+    );
 
     console.log(
       `🗑️ Categoría eliminada: ${categoriaExiste.rows[0].nombre} (ID: ${id})`
@@ -297,8 +316,8 @@ const eliminarCategoria = async (req, res) => {
     console.error("❌ Error eliminando categoría:", error);
     res.status(500).json({
       success: false,
-      error: "Error eliminando categoría",
-      message: "Ocurrió un error al eliminar la categoría",
+      error: error.message,
+      message: "Error al eliminar la categoría",
     });
   }
 };

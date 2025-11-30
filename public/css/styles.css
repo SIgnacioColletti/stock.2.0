@@ -623,3 +623,40 @@ tr:hover {
     grid-template-columns: 1fr;
   }
 }
+/* Form hints */
+.form-hint {
+  display: block;
+  margin-top: 5px;
+  font-size: 0.85rem;
+  color: var(--gray);
+}
+
+/* Form actions */
+.form-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+/* Badge variante */
+.badge-success {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+/* Checkboxes */
+input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+label {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

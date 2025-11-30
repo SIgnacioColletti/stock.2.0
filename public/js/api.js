@@ -147,9 +147,26 @@ const productosAPI = {
 };
 
 // API de Categorías
+
 const categoriasAPI = {
   getAll: async () => {
     return await apiRequest("/categorias", "GET");
+  },
+
+  getById: async (id) => {
+    return await apiRequest(`/categorias/${id}`, "GET");
+  },
+
+  create: async (categoria) => {
+    return await apiRequest("/categorias", "POST", categoria);
+  },
+
+  update: async (id, categoria) => {
+    return await apiRequest(`/categorias/${id}`, "PUT", categoria);
+  },
+
+  delete: async (id) => {
+    return await apiRequest(`/categorias/${id}`, "DELETE");
   },
 };
 

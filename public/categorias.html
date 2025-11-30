@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categorías - Stock Kiosco</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>🏪 Stock Kiosco</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/dashboard.html" class="nav-item">
+                    📊 Dashboard
+                </a>
+                <a href="/productos.html" class="nav-item">
+                    📦 Productos
+                </a>
+                <a href="/categorias.html" class="nav-item active">
+                    🏷️ Categorías
+                </a>
+                <a href="/proveedores.html" class="nav-item">
+                    🚚 Proveedores
+                </a>
+                <a href="/movimientos.html" class="nav-item">
+                    📋 Movimientos
+                </a>
+                <a href="/reportes.html" class="nav-item">
+                    📈 Reportes
+                </a>
+                <a href="#" class="nav-item" onclick="logout()">
+                    🚪 Cerrar Sesión
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <p id="userEmail"></p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="page-header">
+                <div>
+                    <h1>Gestión de Categorías</h1>
+                    <p class="subtitle">Organiza tus productos por categorías</p>
+                </div>
+                <button class="btn btn-primary" onclick="showCreateModal()">
+                    ➕ Nueva Categoría
+                </button>
+            </header>
+
+            <!-- Buscador -->
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="🔍 Buscar categoría..." class="search-input">
+            </div>
+
+            <!-- Loading -->
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Cargando categorías...</p>
+            </div>
+
+            <!-- Contenido -->
+            <div id="categoriasContent" style="display: none;">
+                <!-- Stats Cards -->
+                <div class="stats-grid" style="margin-bottom: 30px;">
+                    <div class="stat-card">
+                        <div class="stat-icon">🏷️</div>
+                        <div class="stat-content">
+                            <h3 id="totalCategorias">0</h3>
+                            <p>Total Categorías</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-content">
+                            <h3 id="categoriasActivas">0</h3>
+                            <p>Activas</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📦</div>
+                        <div class="stat-content">
+                            <h3 id="productosTotal">0</h3>
+                            <p>Total Productos</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grid de Categorías -->
+                <div class="table-section">
+                    <h2>Todas las Categorías</h2>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Descripción</th>
+                                    <th>Productos</th>
+                                    <th>Estado</th>
+                                    <th>Fecha Creación</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="categoriasTableBody">
+                                <tr>
+                                    <td colspan="6" class="text-center">Cargando...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Crear/Editar -->
+            <div id="categoriaModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" onclick="closeModal()">&times;</span>
+                    <h2 id="modalTitle">Nueva Categoría</h2>
+
+                    <form id="categoriaForm">
+                        <input type="hidden" id="categoriaId">
+
+                        <div class="form-group">
+                            <label for="categoriaNombre">Nombre de la Categoría *</label>
+                            <input type="text" id="categoriaNombre" placeholder="Ej: Bebidas, Golosinas, Lácteos..."
+                                required maxlength="50">
+                            <small class="form-hint">Máximo 50 caracteres</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="categoriaDescripcion">Descripción (opcional)</label>
+                            <textarea id="categoriaDescripcion" rows="3"
+                                placeholder="Describe qué tipo de productos incluye esta categoría..."
+                                maxlength="200"></textarea>
+                            <small class="form-hint">Máximo 200 caracteres</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="categoriaActivo" checked>
+                                Categoría activa
+                            </label>
+                            <small class="form-hint">Las categorías inactivas no aparecerán al crear productos</small>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" onclick="closeModal()">
+                                Cancelar
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                💾 Guardar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/categorias.js"></script>
+</body>
+
+</html>
